@@ -1,4 +1,3 @@
-
 import cv2
 from PIL import Image, ImageTk
 import numpy as np
@@ -13,9 +12,6 @@ import csv
 
 window = tk.Tk()
  
-
-
-
 def getfilesname(path):
     filesname =[]
     if(path != ''):
