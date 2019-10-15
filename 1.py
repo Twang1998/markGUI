@@ -1,3 +1,4 @@
+
 import cv2
 from PIL import Image, ImageTk
 import numpy as np
@@ -12,6 +13,9 @@ import csv
 
 window = tk.Tk()
  
+
+
+
 def getfilesname(path):
     filesname =[]
     if(path != ''):
@@ -273,6 +277,8 @@ def locclear(event):
 
 def match(img1,img2,box1):
     img = img2
+    print(img1)
+    print(box1)
     template = img1[box1[1]:box1[3],box1[0]:box1[2]]
     w, h = template.shape[::-1]
 
@@ -336,6 +342,7 @@ tk.Entry(window, textvariable = pathh).place(x=0.3*w_win, y=0.025*h_win,width = 
 tk.Button(window, text = "路径选择", command = selectPath).place(x=0.6*w_win, y=0.025*h_win, anchor='w')
 
 filesname=getfilesname(path)
+print(filesname[0])
 
 img1 = cv2.imread(filesname[0],0)
 img2 = cv2.imread(filesname[1],0)
