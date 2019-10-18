@@ -3,7 +3,7 @@ Marking for the same sences from different phone
 
 打分流程：
 
-![1571399754298](.\assets\ins.png)
+![1571399754298](https://github.com/Twang1998/markGUI/blob/master/assets/1571399754298.png)
 
 
 
