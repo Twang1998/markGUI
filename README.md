@@ -3,7 +3,7 @@ Marking for the same sences from different phone
 
 打分流程：
 
-![1571399754298](.\assets\ins.png)
+![1571399754298](https://github.com/Twang1998/markGUI/blob/master/assets/1571399754298.png)
 
 
 
@@ -12,7 +12,7 @@ Marking for the same sences from different phone
 最新加入 rectangle_4k 和 rectangle_1920 两个文件，作用如下：针对不同尺寸屏幕（普通电脑 以及 4k屏）（打分流程有所变化）：
 1.运行即载入一组图片
 
-![1571399754298](.\assets\1571399754298.png)
+![1571399754298](https://github.com/Twang1998/markGUI/blob/master/assets/ins.png)
 
 - 快捷打分：可以拖动，缩放图片，选择合适区域，对齐（match）之后，选择属性，拖动打分，单击upload，即可提交一组打分数据
 - 可以双击图片全屏展示，并在一组的四张图片之间来回切换。
