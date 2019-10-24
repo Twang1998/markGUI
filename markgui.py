@@ -274,12 +274,12 @@ def scaler(event):
 
             oldscale = scale
 
-            if(event.delta > 0 and oldscale >1):
+            if((event.delta > 0 or event.num == 4) and oldscale >1):
                 scale = max(oldscale-1,1)
                 boxx[0] = boxx[0] + event.x
                 boxx[1] = boxx[1] + event.y
         
-            if(event.delta < 0 and oldscale < maxscale):
+            if((event.delta < 0 or event.num == 5) and oldscale < maxscale):
                 scale = min(oldscale+1,maxscale)
                 if (boxx[0] - event.x <0):
                     boxx[0]=0
@@ -1148,6 +1148,8 @@ b1.place(x=0.91*w_win, y=0.025*h_win, anchor='w')
 
 
 window.bind("<MouseWheel>",scaler)
+window.bind("<Button-4>",scaler)
+window.bind("<Button-5>",scaler)
 window.bind("<B1-Motion>",drag)
 window.bind("<ButtonRelease-1>",locclear)
 window.bind('<Control-Key-m>',update_key)
