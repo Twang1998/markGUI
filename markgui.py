@@ -1,4 +1,4 @@
-
+#coding=utf-8
 import cv2
 from PIL import Image, ImageTk
 import numpy as np
@@ -62,7 +62,8 @@ def selectPath():
     filesname = getfilesname(path)
 
     #判断文件夹是否合法
-    while(len(filesname) == 0 or len(filesname)%4 != 0):
+    # while(len(filesname) == 0 or len(filesname)%4 != 0):
+    while(len(filesname) == 0):
         path = tkinter.filedialog.askdirectory()
         filesname = getfilesname(path)
     pathh.set(path)
@@ -71,10 +72,10 @@ def selectPath():
     phoneidstart = 1
 
     # #用于match算法
-    img1 = cv2.imread(filesname[0],0)
-    img2 = cv2.imread(filesname[1],0)
-    img3 = cv2.imread(filesname[2],0)
-    img4 = cv2.imread(filesname[3],0)
+    img1 = cv2.imread(filesname[0],1)
+    img2 = cv2.imread(filesname[1],1)
+    img3 = cv2.imread(filesname[2],1)
+    img4 = cv2.imread(filesname[3],1)
     
     img_open1 = Image.open(filesname[0])
     #print(img_open1)
@@ -95,7 +96,8 @@ def selectPath():
 
     w_img = img1.shape[1]
     h_img = img1.shape[0]
-    
+    # w_img = 3648
+    # h_img = 2736
     #用于双击弹出图片
     if(w_img/h_img < w_win/h_win):
         whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.9*h_win*w_img/h_img),int(0.9*h_win))))
@@ -167,6 +169,7 @@ def putimage():
     image3 = canvas3.create_image(w_canvas, 0, anchor='ne',image=image_file3)     
 
     image4 = canvas4.create_image(0, 0, anchor='nw',image=image_file4)  
+
 
 #用于实现拖动功能
 #只有在canvas上拖动才有意义（对应第一个if语句）
@@ -324,9 +327,37 @@ def locclear(event):
 def match(img1,img2,box1):
     img = img2
     template = img1[box1[1]:box1[3],box1[0]:box1[2]]
-    w, h = template.shape[::-1]
+    #w, h = template.shape[::-1]
+    h = box1[3]-box1[1]
+    w = box1[2]-box1[0]
+    img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    template=cv2.cvtColor(template,cv2.COLOR_BGR2GRAY)
+    methods = ['cv2.TM_SQDIFF']
+    #methods = ['cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED',
+    #            'cv2.TM_CCORR','cv2.TM_CCORR_NORMED',
+    #            'cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED']
 
-    methods = ['cv2.TM_SQDIFF_NORMED']
+    for meth in methods:
+        method = eval(meth)
+        res = cv2.matchTemplate(img,template,method)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res) #找到最大值和最小值
+
+        if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+            top_left = min_loc
+        else:
+            top_left = max_loc
+    bottom_right = (top_left[0] + w, top_left[1] + h)
+    box=top_left+bottom_right
+
+    return box
+def match_rgb(img1,img2,box1):
+    img = img2
+    template = img1[box1[1]:box1[3],box1[0]:box1[2]]
+    #w, h = template.shape[::-1]
+    h = box1[3]-box1[1]
+    w = box1[2]-box1[0]
+
+    methods = ['cv2.TM_SQDIFF']
     #methods = ['cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED',
     #            'cv2.TM_CCORR','cv2.TM_CCORR_NORMED',
     #            'cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED']
@@ -356,6 +387,22 @@ def update():
     box2 = match(img1,img2,box)
     box3 = match(img1,img3,box)
     box4 = match(img1,img4,box)
+
+    image_file1 = create(img_open1,box)
+    image_file2 = create(img_open2,box2)
+    image_file3 = create(img_open3,box3)
+    image_file4 = create(img_open4,box4)
+
+    putimage()
+
+def update_rgb():
+    global box,box2,box3,box4
+    global img1,img2,img3,img4,flag
+    global image_file1,image_file2,image_file3,image_file4
+
+    box2 = match_rgb(img1,img2,box)
+    box3 = match_rgb(img1,img3,box)
+    box4 = match_rgb(img1,img4,box)
 
     image_file1 = create(img_open1,box)
     image_file2 = create(img_open2,box2)
@@ -400,39 +447,41 @@ def next():
     box2 = box
     box3 = box
     box4 = box
+    sum = len(filesname)
+    phoneidstart = (phoneidstart+4)%sum
+    if(phoneidstart == 0):
+        phoneidstart = sum
+    #if (phoneidstart <= len(filesname)):
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
+    img2 = cv2.imread(filesname[phoneidstart%sum],1)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+    
+    img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
+    img_open2 = Image.open(filesname[phoneidstart%sum])
+    img_open3 = Image.open(filesname[(phoneidstart+1)%sum])
+    img_open4 = Image.open(filesname[(phoneidstart+2)%sum])
 
-    phoneidstart += 4
-    if (phoneidstart <= len(filesname)):
-        img1 = cv2.imread(filesname[phoneidstart-1],0)
-        img2 = cv2.imread(filesname[phoneidstart],0)
-        img3 = cv2.imread(filesname[phoneidstart+1],0)
-        img4 = cv2.imread(filesname[phoneidstart+2],0)
-        
-        img_open1 = Image.open(filesname[phoneidstart-1])
-        img_open2 = Image.open(filesname[phoneidstart])
-        img_open3 = Image.open(filesname[phoneidstart+1])
-        img_open4 = Image.open(filesname[phoneidstart+2])
+    if (img1.shape[0]>img1.shape[1]):
+        img_open1 = img_open1.rotate(270,expand = True)
+        img_open2 = img_open2.rotate(270,expand = True)
+        img_open3 = img_open3.rotate(270,expand = True)
+        img_open4 = img_open4.rotate(270,expand = True)
+    #用于双击弹窗
+    whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
 
-        if (img1.shape[0]>img1.shape[1]):
-            img_open1 = img_open1.rotate(270,expand = True)
-            img_open2 = img_open2.rotate(270,expand = True)
-            img_open3 = img_open3.rotate(270,expand = True)
-            img_open4 = img_open4.rotate(270,expand = True)
-        #用于双击弹窗
-        whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    image_file1 = create(img_open1,box)
+    image_file2 = create(img_open2,box2)
+    image_file3 = create(img_open3,box3)
+    image_file4 = create(img_open4,box4)
 
-        image_file1 = create(img_open1,box)
-        image_file2 = create(img_open2,box2)
-        image_file3 = create(img_open3,box3)
-        image_file4 = create(img_open4,box4)
-
-        putimage()
-    else:
-        phoneidstart -= 4
-        a = tkinter.messagebox.showwarning(message='此文件夹已结束') 
+    putimage()
+    #else:
+        # phoneidstart -= 4
+        # a = tkinter.messagebox.showwarning(message='此文件夹已结束') 
     if(flag==1):
         changemode() 
 def next_key(event):
@@ -444,7 +493,6 @@ def next_key(event):
     global box,box2,box3,box4,scale
     global w_canvas,h_canvas,maxscale
     global phoneidstart
-    global flag
     global whole_imagefile1,whole_imagefile2,whole_imagefile3,whole_imagefile4,w_win,h_win,w_img,h_img #用于双击弹窗
     global rect_box
 
@@ -454,42 +502,43 @@ def next_key(event):
     box2 = box
     box3 = box
     box4 = box
+    sum = len(filesname)
+    phoneidstart = (phoneidstart+4)%sum
+    if(phoneidstart == 0):
+        phoneidstart = sum
+    #if (phoneidstart <= len(filesname)):
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
+    img2 = cv2.imread(filesname[phoneidstart%sum],1)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+    
+    img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
+    img_open2 = Image.open(filesname[phoneidstart%sum])
+    img_open3 = Image.open(filesname[(phoneidstart+1)%sum])
+    img_open4 = Image.open(filesname[(phoneidstart+2)%sum])
 
-    phoneidstart += 4
-    if (phoneidstart <= len(filesname)):
-        img1 = cv2.imread(filesname[phoneidstart-1],0)
-        img2 = cv2.imread(filesname[phoneidstart],0)
-        img3 = cv2.imread(filesname[phoneidstart+1],0)
-        img4 = cv2.imread(filesname[phoneidstart+2],0)
-        
-        img_open1 = Image.open(filesname[phoneidstart-1])
-        img_open2 = Image.open(filesname[phoneidstart])
-        img_open3 = Image.open(filesname[phoneidstart+1])
-        img_open4 = Image.open(filesname[phoneidstart+2])
-        
-        if (img1.shape[0]>img1.shape[1]):
-            img_open1 = img_open1.rotate(270)
-            img_open2 = img_open2.rotate(270)
-            img_open3 = img_open3.rotate(270)
-            img_open4 = img_open4.rotate(270)
+    if (img1.shape[0]>img1.shape[1]):
+        img_open1 = img_open1.rotate(270,expand = True)
+        img_open2 = img_open2.rotate(270,expand = True)
+        img_open3 = img_open3.rotate(270,expand = True)
+        img_open4 = img_open4.rotate(270,expand = True)
+    #用于双击弹窗
+    whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
 
-        #用于双击弹窗
-        whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    image_file1 = create(img_open1,box)
+    image_file2 = create(img_open2,box2)
+    image_file3 = create(img_open3,box3)
+    image_file4 = create(img_open4,box4)
 
-        image_file1 = create(img_open1,box)
-        image_file2 = create(img_open2,box2)
-        image_file3 = create(img_open3,box3)
-        image_file4 = create(img_open4,box4)
-
-        putimage()
-    else:
-        phoneidstart -= 4
-        tkinter.messagebox.showwarning(message='此文件夹已结束')
+    putimage()
+    #else:
+        # phoneidstart -= 4
+        # a = tkinter.messagebox.showwarning(message='此文件夹已结束') 
     if(flag==1):
-        changemode()
+        changemode() 
 
 
 def previous():
@@ -511,35 +560,40 @@ def previous():
     box2 = box
     box3 = box
     box4 = box
+    sum = len(filesname)
+    phoneidstart = (phoneidstart-4+sum)%sum
+    if(phoneidstart == 0):
+        phoneidstart = sum
+  
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
+    img2 = cv2.imread(filesname[phoneidstart%sum],1)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+    
+    img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
+    img_open2 = Image.open(filesname[phoneidstart%sum])
+    img_open3 = Image.open(filesname[(phoneidstart+1)%sum])
+    img_open4 = Image.open(filesname[(phoneidstart+2)%sum])
+    
+    if (img1.shape[0]>img1.shape[1]):
+        img_open1 = img_open1.rotate(270,expand = True)
+        img_open2 = img_open2.rotate(270,expand = True)
+        img_open3 = img_open3.rotate(270,expand = True)
+        img_open4 = img_open4.rotate(270,expand = True)
 
-    phoneidstart -= 4
-    if (phoneidstart >= 1):
-        img1 = cv2.imread(filesname[phoneidstart-1],0)
-        img2 = cv2.imread(filesname[phoneidstart],0)
-        img3 = cv2.imread(filesname[phoneidstart+1],0)
-        img4 = cv2.imread(filesname[phoneidstart+2],0)
-        
-        img_open1 = Image.open(filesname[phoneidstart-1])
-        img_open2 = Image.open(filesname[phoneidstart])
-        img_open3 = Image.open(filesname[phoneidstart+1])
-        img_open4 = Image.open(filesname[phoneidstart+2])
+    #用于双击弹窗
+    whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
 
+    image_file1 = create(img_open1,box)
+    image_file2 = create(img_open2,box2)
+    image_file3 = create(img_open3,box3)
+    image_file4 = create(img_open4,box4)
 
-        #用于双击弹窗
-        whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    putimage()
 
-        image_file1 = create(img_open1,box)
-        image_file2 = create(img_open2,box2)
-        image_file3 = create(img_open3,box3)
-        image_file4 = create(img_open4,box4)
-
-        putimage()
-    else:
-        phoneidstart += 4
-        a = tkinter.messagebox.showwarning(message='这已经是第一组场景！')
     if(flag==1):
         changemode()  
 def previous_key(event):
@@ -561,35 +615,40 @@ def previous_key(event):
     box2 = box
     box3 = box
     box4 = box
+    sum = len(filesname)
+    phoneidstart = (phoneidstart-4+sum)%sum
+    if(phoneidstart == 0):
+        phoneidstart = sum
+  
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
+    img2 = cv2.imread(filesname[phoneidstart%sum],1)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+    
+    img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
+    img_open2 = Image.open(filesname[phoneidstart%sum])
+    img_open3 = Image.open(filesname[(phoneidstart+1)%sum])
+    img_open4 = Image.open(filesname[(phoneidstart+2)%sum])
+    
+    if (img1.shape[0]>img1.shape[1]):
+        img_open1 = img_open1.rotate(270,expand = True)
+        img_open2 = img_open2.rotate(270,expand = True)
+        img_open3 = img_open3.rotate(270,expand = True)
+        img_open4 = img_open4.rotate(270,expand = True)
 
-    phoneidstart -= 4
-    if (phoneidstart >= 1):
-        img1 = cv2.imread(filesname[phoneidstart-1],0)
-        img2 = cv2.imread(filesname[phoneidstart],0)
-        img3 = cv2.imread(filesname[phoneidstart+1],0)
-        img4 = cv2.imread(filesname[phoneidstart+2],0)
-        
-        img_open1 = Image.open(filesname[phoneidstart-1])
-        img_open2 = Image.open(filesname[phoneidstart])
-        img_open3 = Image.open(filesname[phoneidstart+1])
-        img_open4 = Image.open(filesname[phoneidstart+2])
+    #用于双击弹窗
+    whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
 
+    image_file1 = create(img_open1,box)
+    image_file2 = create(img_open2,box2)
+    image_file3 = create(img_open3,box3)
+    image_file4 = create(img_open4,box4)
 
-        #用于双击弹窗
-        whole_imagefile1 = ImageTk.PhotoImage(image = img_open1.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile2 = ImageTk.PhotoImage(image = img_open2.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile3 = ImageTk.PhotoImage(image = img_open3.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
-        whole_imagefile4 = ImageTk.PhotoImage(image = img_open4.resize((int(0.8*w_win),int(0.8*w_win*h_img/w_img))))
+    putimage()
 
-        image_file1 = create(img_open1,box)
-        image_file2 = create(img_open2,box2)
-        image_file3 = create(img_open3,box3)
-        image_file4 = create(img_open4,box4)
-
-        putimage()
-    else:
-        phoneidstart += 4
-        tkinter.messagebox.showwarning(message='这已经是第一组场景！')
     if(flag==1):
         changemode()  
 
@@ -609,6 +668,7 @@ def upload():
     # qwer = tk.Label(window,font=('Arial', 12),bg='green')
     # qwer.place(x=0.67*w_win, y=0.025*h_win, anchor='w')
     # qwer["text"]=str(count)+"ok"
+    sum = len(filesname)
     if(flag == 0):
         c = [box,box2,box3,box4]
     else:
@@ -642,8 +702,11 @@ def upload():
     for i in range(4):
         b = []
         b.append(senseid)
-        b.append(phoneidstart + i)
-        b.append(filesname[i + phoneidstart -1])
+        tmp = phoneidstart + i
+        if(tmp > sum):
+            tmp = tmp%sum
+        b.append(tmp)
+        b.append(filesname[(i + phoneidstart -1)%sum])
         b.append(c[i])
         b.append(cmb.get())
         b.append(d[i])
@@ -704,8 +767,11 @@ def upload_key(event):
     for i in range(4):
         b = []
         b.append(senseid)
-        b.append(phoneidstart + i)
-        b.append(filesname[i + phoneidstart -1])
+        tmp = phoneidstart + i
+        if(tmp > sum):
+            tmp = tmp%sum
+        b.append(tmp)
+        b.append(filesname[(i + phoneidstart -1)%sum])
         b.append(c[i])
         b.append(cmb.get())
         b.append(d[i])
@@ -865,7 +931,7 @@ def display(event):
             img = dis_canvas.create_image(0.5*w_win, 0.5*h_win, anchor='center',image=whole_imagefile4)   
             whichpic = 4
         dis_canvas.place(x=0.5*w_win, y=0.5*h_win, anchor='center')
-        tk.Label(top,text = whichpic,bg='green',font=('Arial', 50)).place(x=0.05*w_win, y=0.05*h_win, anchor='se')
+        tk.Label(top,text = whichpic,bg='green',font=('Arial', 50)).place(x=0, y=0.5*h_win, anchor='w')
         tk.Button(top, text = "next", command = nextpic).place(x=0.95*w_win, y=0.5*h_win, anchor='w')
         top.bind('<Right>',key_nextpic)
 
@@ -930,6 +996,7 @@ def key_nextpic(event):
     tk.Label(top,text = whichpic,bg='green',font=('Arial', 50)).place(x=0.05*w_win, y=0.05*h_win, anchor='se')
 def marking(event):
     global marktop
+    global insimagefile
     global var1,var2,var3,var4,cmb
     try:
         marktop.destroy()    
@@ -944,38 +1011,50 @@ def marking(event):
     # 设置下拉菜单中的值
     cmb['value'] = ('noise','detail','expor','color')
 
+        
     tk.Label(marktop,text='1',bg='green').place(x=0, y=0.058*h_win, anchor='w')
     var1 = tk.DoubleVar()  
     var1.set(2.5) 
     #mark1 = tk.Scale(window,from_=0,  to=5,  resolution=0.5, orient=tk.HORIZONTAL , variable=var1 ,length = 300,showvalue=1,tickinterval=0.5)
-    mark1 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.5, orient=tk.HORIZONTAL , variable=var1 ,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
+    mark1 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.1, orient=tk.HORIZONTAL , variable=var1 ,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
     mark1.place(x=0.01*w_win, y=0.058*h_win, anchor='w')
 
     tk.Label(marktop,text='2',bg='green').place(x=0, y=0.1*h_win, anchor='w')
     var2 = tk.DoubleVar()
     var2.set(2.5) 
-    mark2 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.5, orient=tk.HORIZONTAL , variable=var2,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
+    mark2 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.1, orient=tk.HORIZONTAL , variable=var2,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
     mark2.place(x=0.01*w_win, y=0.10*h_win, anchor='w')
 
     tk.Label(marktop,text='3',bg='green').place(x=0, y=0.14*h_win, anchor='w')
     var3 = tk.DoubleVar()  
     var3.set(2.5) 
-    mark3 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.5, orient=tk.HORIZONTAL , variable=var3,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
+    mark3 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.1, orient=tk.HORIZONTAL , variable=var3,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
     mark3.place(x=0.01*w_win, y=0.14*h_win, anchor='w')
 
     tk.Label(marktop,text='4',bg='green').place(x=0, y=0.18*h_win, anchor='w')
     var4 = tk.DoubleVar() 
     var4.set(2.5) 
-    mark4 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.5, orient=tk.HORIZONTAL , variable=var4,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
+    mark4 = tk.Scale(marktop,from_=0,  to=5,  resolution=0.1, orient=tk.HORIZONTAL , variable=var4,length = int(w_win*0.185),showvalue=0,tickinterval=0.5)
     mark4.place(x=0.01*w_win, y=0.18*h_win, anchor='w')
 
     b = tk.Button(marktop, text='上传打分（Ctrl+u）',  command=upload)
     b.place(x=0.1*w_win, y=0.2*h_win, anchor='n')
 
+
+    
+    Lab= tk.Label(marktop,image= insimagefile)
+    Lab.place(x=0.2*w_win, y=0, anchor='ne')
+    #Lab.pack()
+
     marktop.bind('<Control-Key-u>',upload_key)
 
 
 window.title('My Window')
+
+insimgopen = Image.open('D:/Bishe/markGUI/markGUI/1.png')
+# print(insimgopen)
+# region = insimgopen.resize((100, 80))
+insimagefile = ImageTk.PhotoImage(image = insimgopen)
 
 w_win = window.winfo_screenwidth()
 h_win = window.winfo_screenheight()
@@ -997,7 +1076,7 @@ rect_box = [0,0,0,0]  #用于记录矩形位置,画布上的相对位置，而�
 
 
 #path = 'C:/Users/37151/Desktop/tkinter/sense1'
-path = os.getcwd() + '/sense1'
+path = os.getcwd() + '/picture/scene1'
 path=path.replace("\\","/")
 senseid = path.split('/')[-1]
 #print(path)
@@ -1008,10 +1087,10 @@ tk.Button(window, text = "路径选择", command = selectPath).place(x=0.2*w_win
 pathh.set(path)
 filesname=getfilesname(path)
 
-img1 = cv2.imread(filesname[0],0)
-img2 = cv2.imread(filesname[1],0)
-img3 = cv2.imread(filesname[2],0)
-img4 = cv2.imread(filesname[3],0)
+img1 = cv2.imread(filesname[0],1)
+img2 = cv2.imread(filesname[1],1)
+img3 = cv2.imread(filesname[2],1)
+img4 = cv2.imread(filesname[3],1)
 
 
 img_open1 = Image.open(filesname[0])
@@ -1027,6 +1106,8 @@ if (img1.shape[0]>img1.shape[1]):
 
 w_img = img1.shape[1]
 h_img = img1.shape[0]
+# w_img = 3648
+# h_img = 2736
 #print(img_open1)
 
 # img1 = cv2.cvtColor(np.asarray(img_open1), cv2.COLOR_RGB2BGR)
@@ -1131,6 +1212,10 @@ b0= tk.Button(window, text='对齐(ctrl+m)', font=('Arial', 12),command=update)
 b0.place(x=0.51*w_win, y=0.025*h_win, anchor='w')
 #b0.bind('<Control-Key-m>')
 
+
+b4= tk.Button(window, text='三通道对齐', font=('Arial', 12),command=update_rgb)
+b4.place(x=0.61*w_win, y=0.025*h_win, anchor='w')
+
 b3= tk.Button(window, text='上一组(crtl+ ← )', font=('Arial', 12),command=previous)
 b3.place(x=0.71*w_win, y=0.025*h_win, anchor='w')
 
@@ -1162,3 +1247,5 @@ window.bind("<3>",marking)
 
 #window.attributes("-topmost",True)
 window.mainloop()
+
+#https://github.com/Twang1998/markGUI
