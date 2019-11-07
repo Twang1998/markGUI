@@ -59,6 +59,7 @@ def selectPath():
     global flag
     global rect_box
     group = 1
+    tk.Label(window ,text=group).place(x=0.49*w_win, y=0.025*h_win, anchor='w')
     rect_box = [0,0,0,0]
     if(data != []):
         save()
@@ -77,10 +78,10 @@ def selectPath():
     phoneidstart = 1
 
     # #用于match算法
-    img1 = cv2.imread(filesname[0],1)
-    img2 = cv2.imread(filesname[1],1)
-    img3 = cv2.imread(filesname[2],1)
-    img4 = cv2.imread(filesname[3],1)
+    img1 = cv2.imread(filesname[0],0)
+    img2 = cv2.imread(filesname[1],0)
+    img3 = cv2.imread(filesname[2],0)
+    img4 = cv2.imread(filesname[3],0)
     
     img_open1 = Image.open(filesname[0])
     #print(img_open1)
@@ -399,12 +400,9 @@ def locclear(event):
 def match(img1,img2,box1):
     img = img2
     template = img1[box1[1]:box1[3],box1[0]:box1[2]]
-    #w, h = template.shape[::-1]
-    h = box1[3]-box1[1]
-    w = box1[2]-box1[0]
-    img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    template=cv2.cvtColor(template,cv2.COLOR_BGR2GRAY)
-    methods = ['cv2.TM_SQDIFF']
+    w, h = template.shape[::-1]
+
+    methods = ['cv2.TM_SQDIFF_NORMED']
     #methods = ['cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED',
     #            'cv2.TM_CCORR','cv2.TM_CCORR_NORMED',
     #            'cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED']
@@ -422,31 +420,31 @@ def match(img1,img2,box1):
     box=top_left+bottom_right
 
     return box
-def match_rgb(img1,img2,box1):
-    img = img2
-    template = img1[box1[1]:box1[3],box1[0]:box1[2]]
-    #w, h = template.shape[::-1]
-    h = box1[3]-box1[1]
-    w = box1[2]-box1[0]
+# def match_rgb(img1,img2,box1):
+#     img = img2
+#     template = img1[box1[1]:box1[3],box1[0]:box1[2]]
+#     #w, h = template.shape[::-1]
+#     h = box1[3]-box1[1]
+#     w = box1[2]-box1[0]
 
-    methods = ['cv2.TM_SQDIFF']
-    #methods = ['cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED',
-    #            'cv2.TM_CCORR','cv2.TM_CCORR_NORMED',
-    #            'cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED']
+#     methods = ['cv2.TM_SQDIFF']
+#     #methods = ['cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED',
+#     #            'cv2.TM_CCORR','cv2.TM_CCORR_NORMED',
+#     #            'cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED']
 
-    for meth in methods:
-        method = eval(meth)
-        res = cv2.matchTemplate(img,template,method)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res) #找到最大值和最小值
+#     for meth in methods:
+#         method = eval(meth)
+#         res = cv2.matchTemplate(img,template,method)
+#         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res) #找到最大值和最小值
 
-        if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
-            top_left = min_loc
-        else:
-            top_left = max_loc
-    bottom_right = (top_left[0] + w, top_left[1] + h)
-    box=top_left+bottom_right
+#         if method in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+#             top_left = min_loc
+#         else:
+#             top_left = max_loc
+#     bottom_right = (top_left[0] + w, top_left[1] + h)
+#     box=top_left+bottom_right
 
-    return box
+#     return box
 #Ctrl+m 触发该函数
 #实现图片对齐，其中调用三次match函数
 #按钮 match 触发该函数
@@ -467,21 +465,21 @@ def update():
 
     putimage()
 
-def update_rgb():
-    global box,box2,box3,box4
-    global img1,img2,img3,img4,flag
-    global image_file1,image_file2,image_file3,image_file4
+# def update_rgb():
+#     global box,box2,box3,box4
+#     global img1,img2,img3,img4,flag
+#     global image_file1,image_file2,image_file3,image_file4
 
-    box2 = match_rgb(img1,img2,box)
-    box3 = match_rgb(img1,img3,box)
-    box4 = match_rgb(img1,img4,box)
+#     box2 = match_rgb(img1,img2,box)
+#     box3 = match_rgb(img1,img3,box)
+#     box4 = match_rgb(img1,img4,box)
 
-    image_file1 = create(img_open1,box)
-    image_file2 = create(img_open2,box2)
-    image_file3 = create(img_open3,box3)
-    image_file4 = create(img_open4,box4)
+#     image_file1 = create(img_open1,box)
+#     image_file2 = create(img_open2,box2)
+#     image_file3 = create(img_open3,box3)
+#     image_file4 = create(img_open4,box4)
 
-    putimage()
+#     putimage()
 def update_key(event):
     global box,box2,box3,box4
     global img1,img2,img3,img4,flag
@@ -514,21 +512,29 @@ def next():
     global rect_box
     global group
     group +=1
+    sum = len(filesname)
+    maxgroup = int(float(sum)/4+0.5)
+    if(group>maxgroup):
+        group = 1
+    tk.Label(window ,text=group).place(x=0.49*w_win, y=0.025*h_win, anchor='w')
     rect_box = [0,0,0,0]
     scale =maxscale
     box = (0, 0, w_canvas*scale, h_canvas*scale)    
     box2 = box
     box3 = box
     box4 = box
-    sum = len(filesname)
-    phoneidstart = (phoneidstart+4)%sum
-    if(phoneidstart == 0):
-        phoneidstart = sum
+
+    # phoneidstart = (phoneidstart+4)%sum
+    # if(phoneidstart == 0):
+    #     phoneidstart = sum
+    phoneidstart +=4 
+    if(phoneidstart>sum):
+        phoneidstart = 1
     #if (phoneidstart <= len(filesname)):
-    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
-    img2 = cv2.imread(filesname[phoneidstart%sum],1)
-    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
-    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],10)
+    img2 = cv2.imread(filesname[phoneidstart%sum],0)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],0)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],0)
     
     img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
     img_open2 = Image.open(filesname[phoneidstart%sum])
@@ -569,22 +575,30 @@ def next_key(event):
     global whole_imagefile1,whole_imagefile2,whole_imagefile3,whole_imagefile4,w_win,h_win,w_img,h_img #用于双击弹窗
     global rect_box
     global group
-    group += 1
+    group +=1
+    sum = len(filesname)
+    maxgroup = int(float(sum)/4+0.5)
+    if(group>maxgroup):
+        group = 1
+    tk.Label(window ,text=group).place(x=0.49*w_win, y=0.025*h_win, anchor='w')
     rect_box = [0,0,0,0]
     scale =maxscale
     box = (0, 0, w_canvas*scale, h_canvas*scale)    
     box2 = box
     box3 = box
     box4 = box
-    sum = len(filesname)
-    phoneidstart = (phoneidstart+4)%sum
-    if(phoneidstart == 0):
-        phoneidstart = sum
+
+    # phoneidstart = (phoneidstart+4)%sum
+    # if(phoneidstart == 0):
+    #     phoneidstart = sum
+    phoneidstart +=4 
+    if(phoneidstart>sum):
+        phoneidstart = 1
     #if (phoneidstart <= len(filesname)):
-    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
-    img2 = cv2.imread(filesname[phoneidstart%sum],1)
-    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
-    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],10)
+    img2 = cv2.imread(filesname[phoneidstart%sum],0)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],0)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],0)
     
     img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
     img_open2 = Image.open(filesname[phoneidstart%sum])
@@ -629,21 +643,29 @@ def previous():
     global rect_box
     global group
     group -= 1
+    sum = len(filesname)
+    maxgroup = int(float(sum)/4+0.5)
+    if(group<1):
+        group = maxgroup
+    tk.Label(window ,text=group).place(x=0.49*w_win, y=0.025*h_win, anchor='w')
     rect_box = [0,0,0,0]
     scale =maxscale
     box = (0, 0, w_canvas*scale, h_canvas*scale)    
     box2 = box
     box3 = box
     box4 = box
-    sum = len(filesname)
-    phoneidstart = (phoneidstart-4+sum)%sum
-    if(phoneidstart == 0):
-        phoneidstart = sum
-  
-    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
-    img2 = cv2.imread(filesname[phoneidstart%sum],1)
-    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
-    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+
+    # phoneidstart = (phoneidstart-4+sum)%sum
+    # if(phoneidstart == 0):
+    #     phoneidstart = sum
+    phoneidstart -=4 
+    if(phoneidstart <1):
+        phoneidstart = (maxgroup-1)*4+1
+
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],0)
+    img2 = cv2.imread(filesname[phoneidstart%sum],0)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],0)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],0)
     
     img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
     img_open2 = Image.open(filesname[phoneidstart%sum])
@@ -685,21 +707,29 @@ def previous_key(event):
     global rect_box
     global group
     group -= 1
+    sum = len(filesname)
+    maxgroup = int(float(sum)/4+0.5)
+    if(group<1):
+        group = maxgroup
+    tk.Label(window ,text=group).place(x=0.49*w_win, y=0.025*h_win, anchor='w')
     rect_box = [0,0,0,0]
     scale =maxscale
     box = (0, 0, w_canvas*scale, h_canvas*scale)    
     box2 = box
     box3 = box
     box4 = box
-    sum = len(filesname)
-    phoneidstart = (phoneidstart-4+sum)%sum
-    if(phoneidstart == 0):
-        phoneidstart = sum
-  
-    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],1)
-    img2 = cv2.imread(filesname[phoneidstart%sum],1)
-    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],1)
-    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],1)
+
+    # phoneidstart = (phoneidstart-4+sum)%sum
+    # if(phoneidstart == 0):
+    #     phoneidstart = sum
+    phoneidstart -=4 
+    if(phoneidstart <1):
+        phoneidstart = (maxgroup-1)*4+1
+
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],0)
+    img2 = cv2.imread(filesname[phoneidstart%sum],0)
+    img3 = cv2.imread(filesname[(phoneidstart+1)%sum],0)
+    img4 = cv2.imread(filesname[(phoneidstart+2)%sum],0)
     
     img_open1 = Image.open(filesname[(phoneidstart-1)%sum])
     img_open2 = Image.open(filesname[phoneidstart%sum])
@@ -726,7 +756,7 @@ def previous_key(event):
     putimage()
 
     if(flag==1):
-        changemode()    
+        changemode()     
 
 #按钮upload绑定的函数，用于将四组打分数据暂存到全局的data二维数组中
 #二维数组共六列
@@ -738,9 +768,10 @@ def upload():
     global filesname
     global senseid,phoneidstart
     global data
-    global flag
+    global flag #控制看图打分切换
     global rect_box,flag,rect1,rect2,rect3,rect4
     global cmb_flag,cmb2_flag
+    global group
     # count+=1
     # qwer = tk.Label(window,font=('Arial', 12),bg='green')
     # qwer.place(x=0.67*w_win, y=0.025*h_win, anchor='w')
@@ -749,6 +780,8 @@ def upload():
     cmb2_flag = cmb2['value'].index(cmb2.get())
     # print(cmb_flag)
     sum = len(filesname)
+    #c为四个元组，代表4个框的位置
+    #d为4个分数
     if(flag == 0):
         c = [box,box2,box3,box4]
     else:
@@ -779,77 +812,16 @@ def upload():
 
     d = [var1.get(),var2.get(),var3.get(),var4.get()]
     
-    for i in range(4):
-        b = []
-        b.append(senseid)
-        tmp = phoneidstart + i
-        if(tmp > sum):
-            tmp = tmp%sum
-        b.append(tmp)
-        b.append(filesname[(i + phoneidstart -1)%sum][-9:])
-        b.append(c[i])
-        b.append(cmb.get())
-        b.append(cmb2.get())
-        b.append(d[i])
-        data.append(b)
-    rect_box = [0,0,0,0]
-    var1.set(2.5) 
-    var2.set(2.5) 
-    var3.set(2.5) 
-    var4.set(2.5) 
-    if(flag==1):
-        changemode()
-    #tk.Label(window,text = "ok").place(x=0.55*w_win, y=0.025*h_win, anchor='w')
-    marktop.destroy()
-    print(data)
-def upload_key(event):
-    #global var1,var2,var3,var4
-    global box,box2,box3,box4,scale
-    global marktop
-    global filesname
-    global senseid,phoneidstart
-    global data
-    global flag
-    global rect_box,flag,rect1,rect2,rect3,rect4
-    global cmb_flag,cmb2_flag
-    # count+=1
-    # qwer = tk.Label(window,font=('Arial', 12),bg='green')
-    # qwer.place(x=0.67*w_win, y=0.025*h_win, anchor='w')
-    # qwer["text"]=str(count)+"ok"
-    cmb_flag = cmb['value'].index(cmb.get())
-    cmb2_flag = cmb2['value'].index(cmb2.get())
-    # print(cmb_flag)
-    sum = len(filesname)
-    if(flag == 0):
-        c = [box,box2,box3,box4]
-    else:
-        c_ori = [box,box2,box3,box4]
-        c = []
-        canvas1.delete(rect1)
-        canvas2.delete(rect2)
-        canvas3.delete(rect3)
-        canvas4.delete(rect4)
-        # lbox = list(box)
-        # lbox2 = list(box2)
-        # lbox3 = list(box3)
-        # lbox4 = list(box4)
-        if (rect_box == [0,0,0,0]):
-            c = c_ori
-        else:
-            for i in range(4):
-                lbox = list(c_ori[i])
-                lbox[2] = lbox[0]+scale * rect_box[2]
-                lbox[3] = lbox[1]+scale * rect_box[3]
-                lbox[0] += scale * rect_box[0]
-                lbox[1] += scale * rect_box[1]
-
-                    
-                tbox = tuple(lbox)
-                c.append(tbox)
-
-
-    d = [var1.get(),var2.get(),var3.get(),var4.get()]
+    coverflag = 0
+    coverloc = 0
+    if (len(data) != 0):
+        for j in range(len(data)):
+            if data[j][1] == 4*group -3:
+                coverloc = j
+                coverflag = 1
+                break
     
+ 
     for i in range(4):
         b = []
         b.append(senseid)
@@ -862,7 +834,104 @@ def upload_key(event):
         b.append(cmb.get())
         b.append(cmb2.get())
         b.append(d[i])
-        data.append(b)
+        if(group != 4 or (group ==4 and i !=3)):
+            if(coverflag == 1):       
+                data[coverloc+i] = b
+            else:
+                data.append(b)
+
+
+    rect_box = [0,0,0,0]
+    var1.set(2.5) 
+    var2.set(2.5) 
+    var3.set(2.5) 
+    var4.set(2.5) 
+    if(flag==1):
+        changemode()
+    #tk.Label(window,text = "ok").place(x=0.55*w_win, y=0.025*h_win, anchor='w')
+    marktop.destroy()
+    print(data)
+
+def upload_key(event):
+    #global var1,var2,var3,var4
+    global box,box2,box3,box4,scale
+    global marktop
+    global filesname
+    global senseid,phoneidstart
+    global data
+    global flag #控制看图打分切换
+    global rect_box,flag,rect1,rect2,rect3,rect4
+    global cmb_flag,cmb2_flag
+    global group
+    # count+=1
+    # qwer = tk.Label(window,font=('Arial', 12),bg='green')
+    # qwer.place(x=0.67*w_win, y=0.025*h_win, anchor='w')
+    # qwer["text"]=str(count)+"ok"
+    cmb_flag = cmb['value'].index(cmb.get())
+    cmb2_flag = cmb2['value'].index(cmb2.get())
+    # print(cmb_flag)
+    sum = len(filesname)
+    #c为四个元组，代表4个框的位置
+    #d为4个分数
+    if(flag == 0):
+        c = [box,box2,box3,box4]
+    else:
+        c_ori = [box,box2,box3,box4]
+        c = []
+        canvas1.delete(rect1)
+        canvas2.delete(rect2)
+        canvas3.delete(rect3)
+        canvas4.delete(rect4)
+        # lbox = list(box)
+        # lbox2 = list(box2)
+        # lbox3 = list(box3)
+        # lbox4 = list(box4)
+        if (rect_box == [0,0,0,0]):
+            c = c_ori
+        else:
+            for i in range(4):
+                lbox = list(c_ori[i])
+                lbox[2] = lbox[0]+scale * rect_box[2]
+                lbox[3] = lbox[1]+scale * rect_box[3]
+                lbox[0] += scale * rect_box[0]
+                lbox[1] += scale * rect_box[1]
+
+                    
+                tbox = tuple(lbox)
+                c.append(tbox)
+
+
+    d = [var1.get(),var2.get(),var3.get(),var4.get()]
+    
+    coverflag = 0
+    coverloc = 0
+    if (len(data) != 0):
+        for j in range(len(data)):
+            if data[j][1] == 4*group -3:
+                coverloc = j
+                coverflag = 1
+                break
+    
+ 
+    for i in range(4):
+        b = []
+        b.append(senseid)
+        tmp = phoneidstart + i
+        if(tmp > sum):
+            tmp = tmp%sum
+        b.append(tmp)
+        b.append(filesname[(i + phoneidstart -1)%sum])
+        b.append(c[i])
+        b.append(cmb.get())
+        b.append(cmb2.get())
+        b.append(d[i])
+        if(group != 4 or (group ==4 and i !=3)):
+            if(coverflag == 1):       
+                data[coverloc+i] = b
+            else:
+                data.append(b)
+
+
     rect_box = [0,0,0,0]
     var1.set(2.5) 
     var2.set(2.5) 
@@ -1225,10 +1294,10 @@ filesname=getfilesname(path)
 
 print(filesname)
 
-img1 = cv2.imread(filesname[0],1)
-img2 = cv2.imread(filesname[1],1)
-img3 = cv2.imread(filesname[2],1)
-img4 = cv2.imread(filesname[3],1)
+img1 = cv2.imread(filesname[0],0)
+img2 = cv2.imread(filesname[1],0)
+img3 = cv2.imread(filesname[2],0)
+img4 = cv2.imread(filesname[3],0)
 
 
 img_open1 = Image.open(filesname[0])
@@ -1357,8 +1426,8 @@ b0.place(x=0.51*w_win, y=0.025*h_win, anchor='w')
 #b0.bind('<Control-Key-m>')
 
 
-b4= tk.Button(window, text='三通道对齐(ctrl+m)', font=('Arial', 12),command=update_rgb)
-b4.place(x=0.61*w_win, y=0.025*h_win, anchor='w')
+# b4= tk.Button(window, text='三通道对齐(ctrl+m)', font=('Arial', 12),command=update_rgb)
+# b4.place(x=0.61*w_win, y=0.025*h_win, anchor='w')
 
 b3= tk.Button(window, text='上一组(crtl+ ← )', font=('Arial', 12),command=previous)
 b3.place(x=0.71*w_win, y=0.025*h_win, anchor='w')
