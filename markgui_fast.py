@@ -163,14 +163,14 @@ def putimage():
 
     global box
     global w_canvas,h_canvas,maxscale
-    global image1,image2,image3,image4
+    #global image1,image2,image3,image4
     # global rect_box
-
+    print(canvas1.find_all())
     # rect_box = [0,0,0,0]
-    canvas1.delete(image1)
-    canvas2.delete(image2)
-    canvas3.delete(image3)
-    canvas4.delete(image4)
+    canvas1.delete(canvas1.find_all())
+    canvas2.delete(canvas2.find_all())
+    canvas3.delete(canvas3.find_all())
+    canvas4.delete(canvas4.find_all())
 
 
     image1 = canvas1.create_image(w_canvas, h_canvas, anchor='se',image=image_file1)  
@@ -531,7 +531,7 @@ def next():
     if(phoneidstart>sum):
         phoneidstart = 1
     #if (phoneidstart <= len(filesname)):
-    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],10)
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],0)
     img2 = cv2.imread(filesname[phoneidstart%sum],0)
     img3 = cv2.imread(filesname[(phoneidstart+1)%sum],0)
     img4 = cv2.imread(filesname[(phoneidstart+2)%sum],0)
@@ -595,7 +595,7 @@ def next_key(event):
     if(phoneidstart>sum):
         phoneidstart = 1
     #if (phoneidstart <= len(filesname)):
-    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],10)
+    img1 = cv2.imread(filesname[(phoneidstart-1)%sum],0)
     img2 = cv2.imread(filesname[phoneidstart%sum],0)
     img3 = cv2.imread(filesname[(phoneidstart+1)%sum],0)
     img4 = cv2.imread(filesname[(phoneidstart+2)%sum],0)
@@ -780,6 +780,7 @@ def upload():
     cmb2_flag = cmb2['value'].index(cmb2.get())
     # print(cmb_flag)
     sum = len(filesname)
+    maxgroup = int(float(sum)/4+0.5)
     #c为四个元组，代表4个框的位置
     #d为4个分数
     if(flag == 0):
@@ -821,25 +822,43 @@ def upload():
                 coverflag = 1
                 break
     
- 
-    for i in range(4):
-        b = []
-        b.append(senseid)
-        tmp = phoneidstart + i
-        if(tmp > sum):
-            tmp = tmp%sum
-        b.append(tmp)
-        b.append(filesname[(i + phoneidstart -1)%sum])
-        b.append(c[i])
-        b.append(cmb.get())
-        b.append(cmb2.get())
-        b.append(d[i])
-        if(group != 4 or (group ==4 and i !=3)):
+    if (group != maxgroup):
+        for i in range(4):
+            b = []
+            b.append(senseid)
+            tmp = phoneidstart + i
+            if(tmp > sum):
+                tmp = tmp%sum
+            b.append(tmp)
+            b.append(os.path.split(filesname[(i + phoneidstart -1)%sum])[-1])
+            b.append(c[i])
+            b.append(cmb.get())
+            b.append(cmb2.get())
+            b.append(d[i])
+            # if(group != 4 or (group ==4 and i !=3)):
             if(coverflag == 1):       
                 data[coverloc+i] = b
             else:
                 data.append(b)
-
+    else:
+        rest = sum-4*(maxgroup-1)
+        for i in range(rest):
+            b = []
+            b.append(senseid)
+            tmp = phoneidstart + i
+            if(tmp > sum):
+                tmp = tmp%sum
+            b.append(tmp)
+            b.append(os.path.split(filesname[(i + phoneidstart -1)%sum])[-1])
+            b.append(c[i])
+            b.append(cmb.get())
+            b.append(cmb2.get())
+            b.append(d[i])
+            # if(group != 4 or (group ==4 and i !=3)):
+            if(coverflag == 1):       
+                data[coverloc+i] = b
+            else:
+                data.append(b)
 
     rect_box = [0,0,0,0]
     var1.set(2.5) 
@@ -871,6 +890,7 @@ def upload_key(event):
     cmb2_flag = cmb2['value'].index(cmb2.get())
     # print(cmb_flag)
     sum = len(filesname)
+    maxgroup = int(float(sum)/4+0.5)
     #c为四个元组，代表4个框的位置
     #d为4个分数
     if(flag == 0):
@@ -912,25 +932,43 @@ def upload_key(event):
                 coverflag = 1
                 break
     
- 
-    for i in range(4):
-        b = []
-        b.append(senseid)
-        tmp = phoneidstart + i
-        if(tmp > sum):
-            tmp = tmp%sum
-        b.append(tmp)
-        b.append(filesname[(i + phoneidstart -1)%sum])
-        b.append(c[i])
-        b.append(cmb.get())
-        b.append(cmb2.get())
-        b.append(d[i])
-        if(group != 4 or (group ==4 and i !=3)):
+    if (group != maxgroup):
+        for i in range(4):
+            b = []
+            b.append(senseid)
+            tmp = phoneidstart + i
+            if(tmp > sum):
+                tmp = tmp%sum
+            b.append(tmp)
+            b.append(os.path.split(filesname[(i + phoneidstart -1)%sum])[-1])
+            b.append(c[i])
+            b.append(cmb.get())
+            b.append(cmb2.get())
+            b.append(d[i])
+            # if(group != 4 or (group ==4 and i !=3)):
             if(coverflag == 1):       
                 data[coverloc+i] = b
             else:
                 data.append(b)
-
+    else:
+        rest = sum-4*(maxgroup-1)
+        for i in range(rest):
+            b = []
+            b.append(senseid)
+            tmp = phoneidstart + i
+            if(tmp > sum):
+                tmp = tmp%sum
+            b.append(tmp)
+            b.append(os.path.split(filesname[(i + phoneidstart -1)%sum])[-1])
+            b.append(c[i])
+            b.append(cmb.get())
+            b.append(cmb2.get())
+            b.append(d[i])
+            # if(group != 4 or (group ==4 and i !=3)):
+            if(coverflag == 1):       
+                data[coverloc+i] = b
+            else:
+                data.append(b)
 
     rect_box = [0,0,0,0]
     var1.set(2.5) 
@@ -951,7 +989,7 @@ def save():
     global data
     global senseid
     global cmb
-    data = data[:15]
+    #data = data[:15]
     temp = np.array(data) 
     temp1 = temp[np.lexsort(temp.T)]
     data = temp1.tolist() 
@@ -998,8 +1036,13 @@ def save_key(event):
     global path
     global data
     global senseid
-    data = sorted(data)
-    jsonfile=open(path+'/'+senseid+'.json','w')
+    global cmb
+    #data = data[:15]
+    temp = np.array(data) 
+    temp1 = temp[np.lexsort(temp.T)]
+    data = temp1.tolist() 
+    # data = sorted(data)
+    jsonfile=open(path+'/'+senseid+data[0][4]+'.json','w')
     dataa = []
     for i in range(len(data)):
         senseid = data[i][0]
@@ -1030,13 +1073,13 @@ def save_key(event):
 
     
     name_attribute = ['senseid','phoneid','path','area','arrtibute','subattribute','score']
-    csvFile = open(path+'/'+senseid+'.csv', "w",newline='')
+    csvFile = open(path+'/'+senseid+data[0][4]+'.csv', "w",newline='')
     writer = csv.writer(csvFile)
     writer.writerow(name_attribute)
     for i in range(len(data)):
         writer.writerow(data[i])
     data = []
-    tkinter.messagebox.showwarning(message='保存成功')  
+    tkinter.messagebox.showwarning(message='保存成功') 
 
 
 
@@ -1187,7 +1230,7 @@ def marking(event):
     if(cmb.get() == 'Color'):
         cmb2['value'] = ('AWB','ColorRendering','ColorShading','颜色一致性')
     elif(cmb.get() == 'Texture'):
-        cmb2['value'] = ('texture')
+        cmb2['value'] = ('静止三脚架/运动手持')
     elif(cmb.get() == 'Noise'):
         cmb2['value'] = ('亮度噪声','彩色噪声')
     elif(cmb.get() == 'AF'):
@@ -1393,19 +1436,19 @@ image_file3 = create(img_open3,box3)
 image_file4 = create(img_open4,box4)
 
 canvas1 = tk.Canvas(window, height=h_canvas, width=w_canvas)
-image1 = canvas1.create_image(w_canvas, h_canvas, anchor='se',image=image_file1)  
+#image1 = canvas1.create_image(w_canvas, h_canvas, anchor='se',image=image_file1)  
 canvas1.place(x=0.5*w_win, y=0.52*h_win, anchor='se')
 
 canvas2 = tk.Canvas(window,height=h_canvas, width=w_canvas)
-image2 = canvas2.create_image(0, h_canvas, anchor='sw',image=image_file2)     
+#image2 = canvas2.create_image(0, h_canvas, anchor='sw',image=image_file2)     
 canvas2.place(x=0.5*w_win, y=0.52*h_win, anchor='sw')
 
 canvas3 = tk.Canvas(window, height=h_canvas, width=w_canvas)
-image3 = canvas3.create_image(w_canvas, 0, anchor='ne',image=image_file3)     
+#image3 = canvas3.create_image(w_canvas, 0, anchor='ne',image=image_file3)     
 canvas3.place(x=0.5*w_win, y=0.52*h_win, anchor='ne')
 
 canvas4 = tk.Canvas(window, height=h_canvas, width=w_canvas)
-image4 = canvas4.create_image(0, 0, anchor='nw',image=image_file4)  
+#image4 = canvas4.create_image(0, 0, anchor='nw',image=image_file4)  
 canvas4.place(x=0.5*w_win, y=0.52*h_win, anchor='nw')
 
 rect1 = canvas1.create_rectangle(0, 0, 1, 1)

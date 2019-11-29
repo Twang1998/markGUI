@@ -1,0 +1,16 @@
+senseid,phoneid,path,area,arrtibute,subattribute,score
+001,9,I_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,0.0
+001,10,J_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,0.0
+001,11,K_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,0.0
+001,12,L_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,0.0
+001,5,E_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,1.5
+001,6,F_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,1.5
+001,7,G_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,1.5
+001,8,H_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,1.5
+001,1,A_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,2.5
+001,2,B_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,2.5
+001,3,C_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,2.5
+001,4,D_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,2.5
+001,13,M_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,5.0
+001,14,N_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,5.0
+001,15,O_001.jpg,"(0, 0, 3072, 1624)",Exposure,Exposure Target,5.0

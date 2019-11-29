@@ -1,5 +1,5 @@
-senseid,phoneid,path,area,arrtibute,score
-scene1,1,d:/Bishe/markGUI/markGUI/picture/scene1/20190816_104336.jpg,"(1668, 783, 2204, 1150)",expor,1.5
-scene1,2,d:/Bishe/markGUI/markGUI/picture/scene1/20190816_104358.jpg,"(1774, 803, 2310, 1170)",expor,4.0
-scene1,3,d:/Bishe/markGUI/markGUI/picture/scene1/20190816_104410.jpg,"(1707, 743, 2243, 1110)",expor,1.0
-scene1,4,d:/Bishe/markGUI/markGUI/picture/scene1/20190816_104413.jpg,"(1677, 817, 2213, 1184)",expor,3.0
+senseid,phoneid,path,area,arrtibute,subattribute,score
+scene1,1,d:/Bishe/markGUI/markGUI/picture/scene1/1.jpg,"(0, 0, 3840, 2030)",Exposure,Exposure Target,2.5
+scene1,2,d:/Bishe/markGUI/markGUI/picture/scene1/2.jpg,"(0, 0, 3840, 2030)",Exposure,Exposure Target,2.5
+scene1,3,d:/Bishe/markGUI/markGUI/picture/scene1/3.jpg,"(0, 0, 3840, 2030)",Exposure,Exposure Target,2.5
+scene1,4,d:/Bishe/markGUI/markGUI/picture/scene1/4.jpg,"(0, 0, 3840, 2030)",Exposure,Exposure Target,2.5
